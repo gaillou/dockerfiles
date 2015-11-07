@@ -1,4 +1,6 @@
 FROM debian:sid
+MAINTAINER Antoine Gaillard <antoine.gaillard13@gmail.com>
+
 RUN apt-get update && apt-get install -y libstdc++-5-dev --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 RUN buildDeps=' \
@@ -36,4 +38,5 @@ RUN buildDeps=' \
 	&& rm -rf /src \
 	&& apt-get purge -y $buildDeps --auto-remove \
 	&& update-alternatives --install /usr/bin/c++ c++ /usr/local/bin/clang 1
+
 ENTRYPOINT [ "cling" ]
