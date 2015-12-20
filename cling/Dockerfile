@@ -1,11 +1,12 @@
 FROM debian:sid
 MAINTAINER Antoine Gaillard <antoine.gaillard13@gmail.com>
 
-RUN apt-get update && apt-get install -y libstdc++-5-dev --no-install-recommends \
+RUN apt-get update && apt-get install -y libc++-dev libc6-dev --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 RUN buildDeps=' \
-		g++ \
+		clang-3.7 \
 		git \
+    libc++abi-dev \
 		libffi-dev \
 		make \
 		pkg-config \
@@ -22,10 +23,11 @@ RUN buildDeps=' \
 	&& ln -s /src/cling llvm/tools \
 	&& mkdir build \
 	&& cd build \
-	&& ../llvm/configure \
+	&& CXX=/usr/bin/clang++-3.7 CC=/usr/bin/clang-3.7 CXXFLAGS=-I/usr/include/libcxxabi/ ../llvm/configure \
 		--prefix="/usr/local" \
     --enable-optimized \
     --enable-cxx1y \
+    --enable-libcpp \
     --enable-libffi \
     --enable-targets=x86_64 \
     --disable-docs \
@@ -34,6 +36,6 @@ RUN buildDeps=' \
 	&& make -C tools/cling install \
 	&& rm -rf /src \
 	&& apt-get purge -y $buildDeps --auto-remove \
-	&& update-alternatives --install /usr/bin/g++ g++ /usr/local/bin/clang++ 1
+	&& update-alternatives --install /usr/bin/clang++-3.7 clang++-3.7 /usr/local/bin/clang++ 1
 
 ENTRYPOINT [ "cling" ]
